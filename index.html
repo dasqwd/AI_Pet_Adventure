@@ -3,47 +3,771 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta http-equiv="Content-Security-Policy" content="
-  default-src 'self';
-  connect-src 'self' https://api.coze.cn https://api.openai.com;
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' data: https:;
-  script-src 'self' 'unsafe-inline' https:;
-">
-    <title>李鹏程的个人作品展示</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      connect-src 'self' https://api.coze.cn https://api.openai.com;
+      style-src 'self' 'unsafe-inline';
+      img-src 'self' data: https:;
+      script-src 'self' 'unsafe-inline' https:;
+    ">
+    <title>灵伴奇缘 - AI宠物陪伴游戏</title>
+    <style>
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #9370db;
+            --accent-color: #ff7f50;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --pet-bg: #e6f7ff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* 游戏头部区域 */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .game-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .pet-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+        }
+        
+        .pet-name i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+        
+        .status-container {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .status-label {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .status-value {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffd700;
+        }
+        
+        .status-bar {
+            width: 100px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        
+        .status-fill {
+            height: 100%;
+            border-radius: 10px;
+        }
+        
+        .hunger-fill { background: var(--warning-color); width: 80%; }
+        .health-fill { background: var(--success-color); width: 95%; }
+        .exp-fill { background: var(--secondary-color); width: 40%; }
+        
+        /* 游戏主区域 */
+        .game-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .pet-chat-container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .chat-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #ffd700;
+        }
+        
+        .loading-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: var(--accent-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .message.pet {
+            flex-direction: row-reverse;
+        }
+        
+        .avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 15px;
+            flex-shrink: 0;
+            background: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .content {
+            max-width: 70%;
+            padding: 15px;
+            border-radius: 15px;
+            line-height: 1.6;
+        }
+        
+        .system .content {
+            background: rgba(106, 90, 205, 0.3);
+            border: 1px solid rgba(106, 90, 205, 0.5);
+        }
+        
+        .user .content {
+            background: rgba(50, 115, 220, 0.3);
+            border: 1px solid rgba(50, 115, 220, 0.5);
+            margin-left: auto;
+        }
+        
+        .chat-input-area {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-input {
+            display: flex;
+        }
+        
+        .chat-input input {
+            flex-grow: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 30px 0 0 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .chat-input button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 0 30px 30px 0;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .chat-input button:hover {
+            background: var(--secondary-color);
+        }
+        
+        /* 宠物展示区域 */
+        .pet-display-container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .pet-display-header {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-align: center;
+        }
+        
+        .pet-view {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+        
+        .pet-image-container {
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: 5px solid var(--secondary-color);
+            background: rgba(30, 30, 50, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+        }
+        
+        .pet-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            animation: float 3s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0); }
+        }
+        
+        .pet-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 30px;
+            background: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .action-btn.feed { background: var(--success-color); }
+        .action-btn.play { background: var(--accent-color); }
+        .action-btn.catch { background: #9b59b6); }
+        .action-btn.heal { background: var(--danger-color); }
+        
+        /* 游戏功能区域 */
+        .game-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .game-card {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .game-card h3 {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .region-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .region-btn {
+            padding: 15px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            background: rgba(106, 90, 205, 0.2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .region-btn:hover {
+            background: rgba(106, 90, 205, 0.4);
+        }
+        
+        .region-btn.active {
+            background: var(--secondary-color);
+            box-shadow: 0 0 15px rgba(147, 112, 219, 0.5);
+        }
+        
+        .pet-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .stat-item h4 {
+            color: var(--accent-color);
+            margin-bottom: 10px;
+        }
+        
+        .progress-container {
+            height: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            border-radius: 5px;
+        }
+        
+        .happiness-bar { background: #ff7f50; width: 75%; }
+        .energy-bar { background: #9b59b6; width: 60%; }
+        .intelligence-bar { background: #3498db; width: 45%; }
+        
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 900px) {
+            .game-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .status-container {
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .region-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .region-selector {
+                grid-template-columns: 1fr;
+            }
+            
+            .pet-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- 首页内容 -->
-    <section id="home">
-        <h1>欢迎来到李鹏程的个人作品网站</h1>
-        <p>你可以咨询我的AI智能助手，询问有关我的问题，以及查看我参与过的游戏开发和相关的 AI 项目。</p>
-        
-        <!-- 聊天容器 -->
-        <div class="custom-chat-container">
-            <div class="chat-header">
-                <h3 id="chat-title">李鹏程的 AI 智能助手</h3>
-                <div class="loading-indicator"></div>
+    <div class="container">
+        <!-- 游戏头部 -->
+        <div class="game-header">
+            <div class="pet-name">
+                <i class="fas fa-paw"></i>
+                <span id="pet-name">未命名灵宠</span>
             </div>
             
-            <div class="chat-messages" id="messages">
-                <div class="message system">
-                    <div class="avatar">
-                        <img src="images/ai-avatar.png" alt="AI头像">
+            <h1 class="game-title">灵伴奇缘</h1>
+            
+            <div class="status-container">
+                <div class="status-item">
+                    <div class="status-label">饥饿度</div>
+                    <div class="status-value">80%</div>
+                    <div class="status-bar">
+                        <div class="status-fill hunger-fill"></div>
                     </div>
-                    <div class="content">
-                        👋您好，我是李鹏程的AI智能助手！<br>我可以帮助你快速了解李鹏程同学在游戏设计、AI 产品、跨平台项目中的专业能力与项目成果。<br>李鹏程曾在祖龙娱乐、展心展力、文脉互动等公司担任核心岗位，主导 UGC 平台、AI 场景落地与商业化方向的项目研发。你可以在这里深入了解他的：<br>🕹 独立项目：AI 合成游戏、AI 智能助手等<br>🏢 企业项目：祖龙娱乐 Q&A 系统、AI 游戏内容搭建等<br>🎓 能力标签：AI 产品策划、系统逻辑设计、项目协作管理<br>
+                </div>
+                
+                <div class="status-item">
+                    <div class="status-label">生命值</div>
+                    <div class="status-value">95%</div>
+                    <div class="status-bar">
+                        <div class="status-fill health-fill"></div>
+                    </div>
+                </div>
+                
+                <div class="status-item">
+                    <div class="status-label">历练值</div>
+                    <div class="status-value">40%</div>
+                    <div class="status-bar">
+                        <div class="status-fill exp-fill"></div>
                     </div>
                 </div>
             </div>
-            <div class="chat-input-area">
-                <div class="starter-questions-bar" id="starter-questions-bar"></div>
-            <div class="chat-input">
-                <input type="text" id="user-input" placeholder="输入您的问题...">
-                <button id="send-btn" aria-label="发送消息">发送</button>
+        </div>
+        
+        <!-- 游戏主区域 -->
+        <div class="game-container">
+            <!-- 左侧：聊天区域 -->
+            <div class="pet-chat-container">
+                <div class="chat-header">
+                    <h3 class="chat-title">与灵宠对话</h3>
+                    <div class="loading-indicator"></div>
+                </div>
+                
+                <div class="chat-messages" id="messages">
+                    <div class="message system">
+                        <div class="avatar">
+                            <i class="fas fa-dragon"></i>
+                        </div>
+                        <div class="content">
+                            👋 你好，主人！我是你的灵宠伙伴，来自神秘的山海世界。<br>
+                            你可以给我取个名字，我会一直陪伴你、保护你！<br>
+                            当我饿了或者受伤的时候，请记得照顾我哦～<br>
+                            让我们一起踏上奇妙的冒险旅程吧！
+                        </div>
+                    </div>
+                    
+                    <div class="message user">
+                        <div class="avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="content">
+                            你好！你是什么类型的灵宠？
+                        </div>
+                    </div>
+                    
+                    <div class="message system">
+                        <div class="avatar">
+                            <i class="fas fa-dragon"></i>
+                        </div>
+                        <div class="content">
+                            我是来自昆仑山的玄冰灵狐，掌控着冰雪之力❄️<br>
+                            我擅长在雪地中穿梭，也能召唤冰雪保护主人！<br>
+                            主人想给我取什么名字呢？
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chat-input-area">
+                    <div class="starter-questions-bar" id="starter-questions-bar"></div>
+                    <div class="chat-input">
+                        <input type="text" id="user-input" placeholder="和你的灵宠对话...">
+                        <button id="send-btn">发送 <i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧：宠物展示区域 -->
+            <div class="pet-display-container">
+                <h3 class="pet-display-header">灵宠展示</h3>
+                
+                <div class="pet-view">
+                    <div class="pet-image-container">
+                        <img src="https://img.freepik.com/free-vector/cute-fox-with-cub-cartoon-vector-icon-illustration_138676-2247.jpg" alt="灵宠" class="pet-image">
+                    </div>
+                    
+                    <div class="pet-actions">
+                        <button class="action-btn feed">
+                            <i class="fas fa-apple-alt"></i> 喂食
+                        </button>
+                        <button class="action-btn play">
+                            <i class="fas fa-gamepad"></i> 玩耍
+                        </button>
+                        <button class="action-btn catch">
+                            <i class="fas fa-magic"></i> 抓新灵宠
+                        </button>
+                        <button class="action-btn heal">
+                            <i class="fas fa-heartbeat"></i> 治疗
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+        
+        <!-- 游戏功能区域 -->
+        <div class="game-actions">
+            <div class="game-card">
+                <h3><i class="fas fa-globe-asia"></i> 探索地域</h3>
+                <p>选择地域探索，发现新的灵宠伙伴：</p>
+                
+                <div class="region-selector">
+                    <div class="region-btn active">昆仑山</div>
+                    <div class="region-btn">蓬莱岛</div>
+                    <div class="region-btn">幽冥谷</div>
+                    <div class="region-btn">火焰山</div>
+                    <div class="region-btn">水晶湖</div>
+                    <div class="region-btn">雷音寺</div>
+                </div>
+                
+                <button class="action-btn catch" style="width:100%;">
+                    <i class="fas fa-search"></i> 开始探索
+                </button>
+            </div>
+            
+            <div class="game-card">
+                <h3><i class="fas fa-chart-line"></i> 灵宠状态</h3>
+                
+                <div class="pet-stats">
+                    <div class="stat-item">
+                        <h4>快乐度</h4>
+                        <p>灵宠当前的心情状态</p>
+                        <div class="progress-container">
+                            <div class="progress-bar happiness-bar"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <h4>能量值</h4>
+                        <p>进行特殊技能的能量</p>
+                        <div class="progress-container">
+                            <div class="progress-bar energy-bar"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <h4>智慧值</h4>
+                        <p>理解指令的能力</p>
+                        <div class="progress-container">
+                            <div class="progress-bar intelligence-bar"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <h4>忠诚度</h4>
+                        <p>与主人的羁绊程度</p>
+                        <div class="progress-container">
+                            <div class="progress-bar happiness-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <footer>
+            <p>© 2025 灵伴奇缘 - AI宠物陪伴游戏 | 李鹏程作品</p>
+        </footer>
+    </div>
+
+    <script>
+        // 简单的交互功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 区域选择
+            const regionButtons = document.querySelectorAll('.region-btn');
+            regionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    regionButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+            
+            // 动作按钮效果
+            const actionButtons = document.querySelectorAll('.action-btn');
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    this.classList.add('active');
+                    setTimeout(() => {
+                        this.classList.remove('active');
+                    }, 300);
+                    
+                    // 根据按钮类型显示不同反馈
+                    const actionType = this.classList[1];
+                    const messages = document.getElementById('messages');
+                    
+                    let newMessage = '';
+                    if(actionType === 'feed') {
+                        newMessage = '谢谢主人！食物真美味，我的饥饿度降低了！';
+                    } else if(actionType === 'play') {
+                        newMessage = '太好玩了！和主人一起玩耍真开心！';
+                    } else if(actionType === 'catch') {
+                        newMessage = '主人要寻找新的灵宠伙伴吗？我们出发吧！';
+                    } else if(actionType === 'heal') {
+                        newMessage = '感觉好多了，谢谢主人照顾我！';
+                    }
+                    
+                    if(newMessage) {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message system';
+                        messageDiv.innerHTML = `
+                            <div class="avatar">
+                                <i class="fas fa-dragon"></i>
+                            </div>
+                            <div class="content">
+                                ${newMessage}
+                            </div>
+                        `;
+                        messages.appendChild(messageDiv);
+                        messages.scrollTop = messages.scrollHeight;
+                    }
+                });
+            });
+            
+            // 发送消息
+            const sendBtn = document.getElementById('send-btn');
+            const userInput = document.getElementById('user-input');
+            
+            sendBtn.addEventListener('click', sendMessage);
+            userInput.addEventListener('keypress', function(e) {
+                if(e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            function sendMessage() {
+                const message = userInput.value.trim();
+                if(message) {
+                    // 添加用户消息
+                    const messages = document.getElementById('messages');
+                    const userMessage = document.createElement('div');
+                    userMessage.className = 'message user';
+                    userMessage.innerHTML = `
+                        <div class="avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="content">
+                            ${message}
+                        </div>
+                    `;
+                    messages.appendChild(userMessage);
+                    
+                    // 模拟AI回复
+                    setTimeout(() => {
+                        const aiMessage = document.createElement('div');
+                        aiMessage.className = 'message system';
+                        aiMessage.innerHTML = `
+                            <div class="avatar">
+                                <i class="fas fa-dragon"></i>
+                            </div>
+                            <div class="content">
+                                主人，这个问题很有趣！作为来自昆仑山的灵狐，我可以告诉你...
+                            </div>
+                        `;
+                        messages.appendChild(aiMessage);
+                        messages.scrollTop = messages.scrollHeight;
+                    }, 1000);
+                    
+                    // 清空输入框
+                    userInput.value = '';
+                }
+            }
+        });
+    </script>
+</body>
 </html>
