@@ -15,7 +15,6 @@
             --success-color: #28a745;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
-            --pet-bg: #e6f7ff;
         }
         
         * {
@@ -50,7 +49,7 @@
             flex-direction: column;
         }
         
-        /* 游戏头部区域 - 只在聊天界面显示 */
+        /* 游戏头部区域 */
         .game-header {
             display: flex;
             justify-content: space-between;
@@ -151,11 +150,12 @@
             width: 100%;
             text-align: center;
             transition: transform 0.5s ease, opacity 0.5s ease;
+            margin: 0 auto;
         }
         
         /* 地域选择界面 */
         #region-selection {
-            display: block; /* 初始显示 */
+            display: block;
         }
         
         .step-title {
@@ -342,18 +342,19 @@
             height: 100%;
             width: 100%;
             flex-direction: column;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
         
         .pet-chat-container {
             flex-grow: 1;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 20px;
             padding: 25px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
             display: flex;
             flex-direction: column;
+            height: calc(100% - 50px);
         }
         
         .chat-header {
@@ -366,59 +367,86 @@
         }
         
         .chat-title {
-            font-size: 1.8rem;
+            font-size: 2rem;
             font-weight: 600;
             color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
         
         .chat-messages {
             flex-grow: 1;
             overflow-y: auto;
             padding: 15px;
-            background: rgba(30, 30, 50, 0.5);
             border-radius: 15px;
             margin-bottom: 20px;
+            height: 800px; /* 固定高度 */
+            display: flex;
+            flex-direction: column;
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+            background-image: url('https://img.freepik.com/free-vector/cute-fox-with-cub-cartoon-vector-icon-illustration_138676-2247.jpg');
         }
         
         .message {
             display: flex;
             margin-bottom: 20px;
+            max-width: 80%;
         }
         
-        .message.pet {
+        .message.system {
+            align-self: flex-start;
+        }
+        
+        .message.user {
+            align-self: flex-end;
             flex-direction: row-reverse;
         }
         
         .avatar {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             overflow: hidden;
             margin: 0 15px;
             flex-shrink: 0;
-            background: var(--secondary-color);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .system .avatar {
+            background: linear-gradient(135deg, #6a5acd, #9370db);
+        }
+        
+        .user .avatar {
+            background: linear-gradient(135deg, #ff7f50, #ffb347);
         }
         
         .content {
-            max-width: 70%;
-            padding: 15px;
-            border-radius: 15px;
+            padding: 15px 20px;
+            border-radius: 20px;
             line-height: 1.6;
+            font-size: 1.1rem;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
         
         .system .content {
-            background: rgba(106, 90, 205, 0.3);
-            border: 1px solid rgba(106, 90, 205, 0.5);
+            background: rgba(106, 90, 205, 0.85);
+            border: 1px solid rgba(147, 112, 219, 0.5);
+            border-top-left-radius: 0;
+            margin-left: 10px;
         }
         
         .user .content {
-            background: rgba(50, 115, 220, 0.3);
-            border: 1px solid rgba(50, 115, 220, 0.5);
-            margin-left: auto;
+            background: rgba(50, 115, 220, 0.85);
+            border: 1px solid rgba(50, 150, 250, 0.5);
+            border-top-right-radius: 0;
+            margin-right: 10px;
+            text-align: right;
         }
         
         .chat-input-area {
@@ -432,27 +460,36 @@
         
         .chat-input input {
             flex-grow: 1;
-            padding: 15px;
+            padding: 15px 25px;
             border: none;
-            border-radius: 30px 0 0 30px;
-            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.15);
             color: white;
-            font-size: 1rem;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .chat-input input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px var(--accent-color);
         }
         
         .chat-input button {
-            padding: 15px 25px;
+            padding: 15px 30px;
             border: none;
-            border-radius: 0 30px 30px 0;
+            border-radius: 50px;
             background: var(--primary-color);
             color: white;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+            margin-left: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
         
         .chat-input button:hover {
             background: var(--secondary-color);
+            transform: translateY(-2px);
         }
         
         /* 页脚 */
@@ -476,6 +513,25 @@
             .step-title {
                 font-size: 1.8rem;
             }
+            
+            .game-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .status-container {
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .chat-title {
+                font-size: 1.6rem;
+            }
+            
+            .avatar {
+                width: 50px;
+                height: 50px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -487,6 +543,10 @@
                 width: 200px;
                 height: 200px;
             }
+            
+            .chat-messages {
+                height: 1000px; /* 移动端调整高度 */
+            }
         }
     </style>
 </head>
@@ -494,11 +554,7 @@
     <div class="container">
         <!-- 游戏头部 - 只在聊天界面显示 -->
         <div class="game-header">
-            <div class="pet-name">
-                <i class="fas fa-paw"></i>
-                <span id="pet-name-display">未命名灵宠</span>
-            </div>
-            
+
             <h1 class="game-title">灵伴奇缘</h1>
             
             <div class="status-container">
@@ -636,10 +692,15 @@
             </div>
             
             <!-- 步骤4：聊天界面 -->
-            <div id="chat-interface" class="step-container">
+            <div id="chat-interface">
                 <div class="pet-chat-container">
                     <div class="chat-header">
-                        <h3 class="chat-title">与灵宠对话</h3>
+                        <h3 class="chat-title">
+                                <div class="pet-name">
+                                    <i class="fas fa-paw"></i>
+                                    <span id="pet-name-display">未命名灵宠</span>
+                                </div>
+                        </h3>
                     </div>
                     
                     <div class="chat-messages" id="messages">
@@ -870,7 +931,7 @@
             document.getElementById('chat-interface').style.display = 'none';
             
             // 显示当前步骤
-            document.getElementById(stepId).style.display = 'block';
+            document.getElementById(stepId).style.display = stepId === 'chat-interface' ? 'flex' : 'block';
             gameState.currentStep = stepId;
         }
     </script>
