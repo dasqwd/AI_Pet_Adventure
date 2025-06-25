@@ -236,7 +236,7 @@ const petBackgrounds = {
 const adventureEvents = {
   BATTLE: {
     name: "战斗事件",
-    triggers: ["遭遇野狼", "遇到哥布林", "发现敌对生物", "被怪物追击"],
+    triggers: ["遭遇野狼", "遇到哥布林", "发现敌对生物", "被怪物追击", "一群蝙蝠从头顶扑来","树林中窜出一只狂暴野猪","前方出现游荡的骷髅兵","一只沼泽蜥蜴挡住了去路","突然被巡逻的兽人小队发现","迷雾中浮现诡异生物的影子"],
     options: ["正面战斗", "背后偷袭", "暂时撤退"],
   },
   
@@ -272,7 +272,7 @@ const adventureEvents = {
 
   BOSS: {
     name: "BOSS战",
-    triggers: ["遭遇巨大怪物", "发现区域守卫者", "遇到传说中的生物"],
+    triggers: ["遭遇巨大怪物", "发现区域守卫者", "遇到传说中的生物","一个巨大的暗影挡住了天空" ,"火山口中站着一头炽热龙兽" ,"一头巨熊咆哮着逼近" ,"遗迹中心浮现出史诗级魔像" , "水面破裂，一头巨型水怪冲出","众多史莱姆簇拥着史莱姆王登场",],
     options: ["勇敢挑战", "暂时撤退"],
   },
 
@@ -1314,7 +1314,7 @@ const buttonConfig = {
         result.bond = Math.floor(getRandomInRange(10, 20) * gameState.bossBattle.rewardMultiplier);
         prompt += `\n玩家成功击败了 ${bossName}！奖励金币：${result.gold}，羁绊值：${result.bond}。\n请用宠物语气描述胜利的心情和场面，不要重复说明数值变化。`;
       } else {
-        prompt += `请用宠物语气描述当前战斗，并根据回合数说明 BOSS 是否显露出疲态。`;
+        prompt += `请用宠物语气描述当前战斗，并根据回合数判断BOSS此时状态，但不要在言语中提及回合字样。`;
       }
 
       sendHiddenMessage('boss_battle', prompt, (aiResponse) => {
