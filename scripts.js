@@ -85,7 +85,7 @@ const gameState = {
 // 状态检测配置
 const STATUS_THRESHOLDS = {
   health: 20,  // 生命值≤20%时触发休息提醒
-  hunger: 30,    // 体力值≤30%时触发喂食提醒
+  hunger: 20,    // 体力值≤30%时触发喂食提醒
   // 新增冒险相关阈值
   minAdventureHealth: 30,  // 开始冒险最小生命值
   minAdventureHunger: 20,  // 开始冒险最小体力值
