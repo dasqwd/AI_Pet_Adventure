@@ -75,7 +75,7 @@ body {
 .status-wrapper {
     position: absolute;   /* ✅ 从布局流中浮出，不受 flex-column 影响 */
     top: 0px;             /* 靠近顶部 */
-    right: 20px;           /* 靠右边留点边距 */
+    right: 10px;           /* 靠右边留点边距 */
     z-index: 2;            /* 保证在上层 */
 }
 
@@ -86,6 +86,11 @@ body {
     position: absolute;  /* ✅ 保持绝对定位 */
     z-index: 2;
     min-width: 300px;      /* ✅ 防止压缩 */
+}
+
+/* 或者单独为第一行添加底部间距 */
+.status-row:first-child {
+  margin-bottom: 10px;
 }
 
 /* 状态行 */
@@ -193,8 +198,9 @@ body {
 }
 
 /* 地域选择界面 */
-#region-selection {
-    display: block;
+#region-selection, #pet-discovery {
+  transform-origin: top center;
+  transition: transform 0.3s ease;
 }
 
 .step-title {
@@ -376,7 +382,37 @@ body {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.18);
-    overflow: hidden;   /* 防止背景溢出 */
+    overflow: hidden; /* 关键：禁止内容溢出 */
+    background-size: cover;
+    background-position: center;
+}
+
+/* 视频背景层样式 */
+#bg-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+    pointer-events: none;
+}
+
+#chat-interface.step-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: auto;
+    max-width: 1200px;
+    min-width: 700px;
+    height: 90vh;
+    min-height: 700px;
+    max-height: 1500px;
+    margin: 0 auto;
+    overflow: hidden; /* 确保没有滚动条 */
 }
 
 .pet-chat-container {
@@ -387,24 +423,8 @@ body {
     height: calc(100% - 50px);
 }
 
-/* 主容器布局 */
-#chat-interface.step-container {
-    display: flex;          /* 启用Flex布局 */
-    flex-direction: column; /* 垂直排列子元素 */
-    position: relative;    /* 创建相对定位上下文 */
-    width: auto; /* 或固定宽度如 850px */
-    max-width: 1200px; /* 最大宽度限制 */
-    min-width: 700px; /* 最小宽度限制 */
-    height: 90vh; /* 动态高度 */
-    min-height: 700px; /* 最小高度保证 */
-    max-height: 1500px; /* 最大高度限制 */
-    margin: 0 auto; /* 水平居中 */
-    overflow: hidden; /* 改为visible允许内容溢出 */
-}
-
 /* 顶部状态栏 */
 .chat-header {
-    position: relative;
     height: 120px; /* 固定高度 */
     flex-shrink: 0; /* 禁止压缩 */
     z-index: 10;
@@ -415,32 +435,47 @@ body {
     backdrop-filter: blur(2px); /* 可选：添加毛玻璃效果 */
     border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* 可选：底部细分割线 */
 }
+/* 中间大容器，负责分配顶部空白+聊天区域 */
+.chat-main-area {
+    flex: 1;                   /* 占据剩余空间 */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;          /* 避免溢出破坏布局 */
+}
+/* 顶部与聊天框之间的空白占位区域 */
+.chat-gap {
+    flex-shrink: 1;
+    flex-grow: 1;
+    min-height: 200px;   /* ✅ 允许压缩，但不小于200px */
+}
 
 /* 中间聊天区域 */
 .chat-content-wrapper {
-    flex: 1;                   /* 关键1：占据剩余所有可用空间 */
-    width: 95%;                /* 内容宽度 */
-    min-height: 300px;         /* 最小高度保证 */
-    overflow-y: auto;          /* 关键2：垂直方向内容超出时显示滚动条 */
-    overflow-x: hidden;        /* 关键3：禁止水平滚动 */
-    padding: 10px;             /* 内边距 */
-    scrollbar-width: thin;     /* 滚动条细样式（Firefox） */
-    position: relative;        /* 创建相对定位上下文 */
+    flex-grow: 2;              /* 比 chat-gap 占用更多空间，可以调节比例 */
+    flex-shrink: 1;            /* 可被压缩 */
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 10px;
+    min-height: 0;             /* ✅ 关键点：允许被压缩 */
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: thin;
+    position: relative;
 }
 
 /* 底部固定区域 */
 .chat-bottom-fixed {
-    height: 150px;             /* 固定高度 */
-    flex-shrink: 0;            /* 禁止压缩 */
-    position: relative;        /* 创建相对定位上下文 */
-    bottom: 0;                /* 关键2：固定在底部 */
-    padding: 10px;             /* 内边距 */
-    z-index: 10;               /* 关键3：确保显示在最上层 */
-    
+    height: 150px;
+    flex-shrink: 0;
+    position: sticky;          /* 保持固定在底部 */
+    bottom: 0;
+    padding: 10px;
+    z-index: 10;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end; /* 保证输入框永远贴底 */
+    justify-content: flex-end;
 }
+
 .chat-title {
     font-size: 2rem;
     font-weight: 600;
@@ -450,73 +485,87 @@ body {
 
 .chat-messages {
     flex-grow: 1;
-    width: 100%; /* 改为100%填充父容器 */
-    margin-left: 0; /* 移除负margin */
-    margin-top: 120px;
+    width: 100%;
+    min-height: 100%;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .message {
     display: flex;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     max-width: 100%;
 }
 
 .message.system {
-    align-self: flex-start;
-    text-align: left;
+  justify-content: flex-start;
+}
+
+.message.system .content {
+  background: rgba(106, 90, 205, 0.9);
+  border: 1px solid rgba(147, 112, 219, 0.7);
+  border-top-left-radius: 0;
+  margin-left: 10px;
 }
 
 .message.user {
-    align-self: flex-end;
-    flex-direction: row-reverse;
-    text-align: left;
+  justify-content: flex-end;
 }
 
+.message.user .content {
+  background: rgba(255, 127, 80, 0.9);
+  border: 1px solid rgba(255, 179, 71, 0.7);
+  border-top-right-radius: 0;
+  margin-right: 15px;
+}
+
+/* 头像样式保持不变 */
 .avatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    overflow: hidden;
-    margin: 0 15px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    display: none !important;
 }
 
-.system .avatar {
-    background: linear-gradient(135deg, #6a5acd, #9370db);
-}
-
-.user .avatar {
-    background: linear-gradient(135deg, #ff7f50, #ffb347);
-}
-
+/* 消息内容通用样式 */
 .content {
     padding: 15px 20px;
     border-radius: 20px;
     line-height: 1.6;
     font-size: 1.1rem;
     position: relative;
-    max-width: 75%;
+    color: white;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    word-break: break-word;
+    white-space: normal;
+    text-align: left;
+    max-width: 75%;
+    min-width: 150px;
 }
 
+/* 系统消息框（深紫色） */
 .system .content {
-    background: rgba(106, 90, 205, 0.85);
-    border: 1px solid rgba(147, 112, 219, 0.5);
+    background: rgba(106, 90, 205, 0.9); /* 使用头像的浅紫色 */
+    border: 1px solid rgba(147, 112, 219, 0.7); /* 头像的第二种紫色作为边框 */
     border-top-left-radius: 0;
     margin-left: 10px;
+    color: white;
+    /* 小三角指示 */
+    &::before {
+        border-color: transparent rgba(106, 90, 205, 0.7) transparent transparent;
+    }
 }
 
+/* 用户消息框（深橙色） */
 .user .content {
-    background: rgb(255, 179, 71); /* 橙色背景，带透明度 */
-    border: 1px solid rgba(255, 165, 0, 0.5); /* 较亮的橙色边框 */
+    background: rgba(255, 127, 80, 0.9);
+    border: 1px solid rgba(255, 179, 71, 0.7);
     border-top-right-radius: 0;
-    margin-right: 10px;
+    margin-right: 15px; /* 增加右边距 */
+    margin-left: auto; /* 确保右对齐 */
+    color: white;
+    text-align: left; /* 明确设置文本左对齐 */
+    width: fit-content; /* 根据内容自适应宽度 */
+    max-width: calc(100% - 30px); /* 考虑边距 */
 }
 
 .chat-input-area {
@@ -677,6 +726,53 @@ body {
     100% { opacity: 0.2; }
 }
 
+/* 新增等级+经验进度条 */
+.level-wrapper {
+  display: flex;
+  align-items: center;
+  margin: 6px 10px 0 10px;  /* 顶部留白 + 左右对齐状态栏 */
+  height: 28px;
+}
+
+.level-text {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin-right: 8px;
+  color: #ffcc00; /* 深一点的金色 */
+  white-space: nowrap;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* 提升可读性 */
+}
+
+.level-bar {
+  flex: 1;
+  background-color: #2e2e2e;
+  border-radius: 10px;
+  height: 14px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
+}
+
+.level-fill {
+  background: linear-gradient(to right, #b8860b, #ffd700); /* 深金到金黄 */
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease;
+  border-radius: 10px 0 0 10px;
+}
+
+.level-exp-text {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 11px;
+  font-weight: bold;
+  text-shadow: 0 0 2px #000;
+  pointer-events: none;
+}
+
 /* 页脚 */
 footer {
     display: flex;
@@ -686,22 +782,102 @@ footer {
     padding: 15px 0;
 }
 
+/* 飘升数字动画 */
+@keyframes floatUpFadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+}
+
+.floating-increase {
+  position: absolute;
+  color: #4caf50; /* 绿色 */
+  font-weight: 700;
+  font-size: 1.5rem;
+  pointer-events: none;
+  user-select: none;
+  animation: floatUpFadeOut 1s ease forwards;
+  z-index: 999;
+}
+
+/* 粒子样式 */
+.particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #ff9800; /* 橙色 */
+  border-radius: 50%;
+  opacity: 1;
+  animation: particleFloat 1s ease forwards;
+  pointer-events: none;
+  user-select: none;
+  z-index: 998;
+}
+
+/* 粒子飘浮和缩小 */
+@keyframes particleFloat {
+  0% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x, 0px), -40px) scale(0.3);
+  }
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+}
+
+@keyframes particleMove {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(var(--end-x), var(--end-y));
+    opacity: 0;
+  }
+}
+
 @media screen and (max-width: 768px) {
   html, body {
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden; /* ✅ 禁止整个页面滚动 */
+    touch-action: none; /* ✅ 防止 iOS 上滑动页面 */
     margin: 0;
     padding: 0;
   }
 
+  #region-selection,
+  #pet-discovery {
+    transform: none !important;
+    transform-origin: unset !important;
+  }
+
   .container {
-    padding: 10px;
+    padding: 0px;
     height: auto;
   }
 
   .pet-name {
     font-size: 1.2rem!important;
-    top: 0px!important;
+    top: 7px!important;
     left: 10px!important;
   }
 
@@ -711,48 +887,53 @@ footer {
   }
 
   .status-wrapper {
-    top: 10px;
-    right: 10px;
-    transform: scale(0.85);
+    top: -20px !important;  /* 原为0px，增加5px下移（视觉上更靠近） */
+    right: -10px !important; /* 原为0px，增加5px左移 */
+    transform: scale(0.8); /* 原为0.85，缩小一点 */
     transform-origin: top right;
   }
 
   .status-container {
-    min-width: 240px !important;
-    padding: 10px 15px;
-    border-radius: 12px;
+    min-width: 220px !important; /* 原为240px，缩小一点 */
+    padding: 8px 12px !important; /* 原为10px 15px，减少内边距 */
+    border-radius: 10px !important; /* 原为12px，稍微减小 */
   }
 
   .status-row {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* 禁止换行 */
     flex-direction: row !important;
     gap: 8px !important;
     justify-content: space-between;
+    width: 100%; /* 确保占满容器 */
   }
 
   .status-label {
     font-size: 1rem !important;
-    width: 50px !important;
+    width: auto !important; /* 自动宽度 */
     margin-right: 6px !important;
+    flex-shrink: 0; /* 禁止压缩 */
   }
 
   .status-bar {
-    width: 100px !important;  /* ✅ 原来是140，调小以便排下 */
+    width: 80px !important; /* 适当减小宽度 */
     height: 14px !important;
+    flex-shrink: 1; /* 允许适当压缩 */
   }
 
   .status-item {
-    width: 48%;
-    min-width: unset;
+    min-width: unset; /* 移除最小宽度限制 */
+    flex: 1; /* 自动分配空间 */
+    display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    white-space: nowrap; /* 禁止文本换行 */
   }
 
   .plain-value {
     font-size: 1rem !important;
-    min-width: 60px !important;
+    min-width: unset !important; /* 移除最小宽度 */
+    white-space: nowrap; /* 禁止换行 */
   }
 
   .step-container {
@@ -778,28 +959,56 @@ footer {
     padding: 10px 5px;
     border-radius: 10px;
   }
+  
+  /* 顶部与聊天框之间的空白占位区域 */
+  .chat-gap {
+    flex-shrink: 1;
+    flex-grow: 0;
+    min-height: 260px; /* 更小的留白高度 */
+  }
 
   .chat-header {
     position: relative;
-    padding: 20px 10px;
+    padding: 10px 10px !important;
+    height: 60px !important;
     width: 100%;
     box-sizing: border-box;
     z-index: 2;
   }
 
-  .chat-content-wrapper {
+  .chat-main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #chat-interface.step-container {
+    min-width: auto !important;   /* ✅ 移除最小宽度限制 */
     width: 100% !important;
-    padding: 5px !important;
+    max-width: 100vw !important;  /* ✅ 防止横向撑破屏幕 */
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .chat-content-wrapper {
+    flex-grow: 1; /* 占据 chat-main-area 的剩余空间 */
+    min-height: 0; /* ✅ 关键点：允许被压缩 */
+    overflow-y: auto !important;
     overflow-x: hidden !important;
+    padding: 5px !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* 底部固定区域 */
+  .chat-bottom-fixed {
+      height: 120px;
   }
 
   .chat-messages {
-    margin-top: 100px;
-  }
-
-  .chat-bottom-fixed {
-    height: auto;
-    padding: 8px;
+    margin-top: 5px;
   }
 
   .action-buttons-container {
@@ -897,14 +1106,10 @@ footer {
     margin-bottom: 10px;
   }
 
-  #chat-interface.step-container {
-    margin: 0 !important;
-    padding: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 100% !important;
-    height: calc(var(--vh, 1vh) * 100 - 50px) !important;
-    border-radius: 0 !important;
+  /* 确保视频容器可见 */
+  #bg-video {
+      position: fixed !important; /* 仅修改定位方式 */
+      z-index: -1 !important;
   }
 
   .chat-input-area {
@@ -928,13 +1133,6 @@ footer {
   .chat-input button {
     padding: 10px 16px;
     font-size: 0.9rem;
-  }
-
-  .avatar {
-    width: 40px;
-    height: 40px;
-    font-size: 18px;
-    margin: 0 10px;
   }
 
   .content {
