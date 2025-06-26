@@ -856,6 +856,39 @@ footer {
   }
 }
 
+.level-up-effect {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  font-weight: bold;
+  color: #FFD700; /* 金色 */
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+  animation: levelUpAnimation 2.5s ease-out forwards;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+@keyframes levelUpAnimation {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -60%) scale(1.1);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, -70%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -80%) scale(0.9);
+  }
+}
+
 @media screen and (max-width: 768px) {
   html, body {
     overflow: hidden; /* ✅ 禁止整个页面滚动 */
