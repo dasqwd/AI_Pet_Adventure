@@ -351,7 +351,8 @@ function addExpToPet(amount) {
   updateStatsUI();
 
   if (upgraded) {
-    sendMessage(`🎉 太棒了，我升到了 Lv.${stats.level}！谢谢你的陪伴～`, "levelup");
+  showLevelUpEffect(); // ✅ 显示升级特效
+  sendMessage(`🎉 太棒了，我升到了 Lv.${stats.level}！谢谢你的陪伴～`, "levelup");
   }
 }
 
@@ -1921,48 +1922,62 @@ function showStatChange(statName, amount) {
   
   const statusItems = document.querySelectorAll('.status-item');
   let targetStatusItem = null;
-  
-  for (const item of statusItems) {
-    const label = item.querySelector('.status-label');
-    if (label && label.textContent.includes(statLabels[statName])) {
-      targetStatusItem = item;
-      break;
+
+  if (statName === 'exp') {
+    const levelBar = document.querySelector('.level-bar');
+    if (levelBar) {
+      targetStatusItem = levelBar;
+      targetStatusItem.style.position = 'relative';
+    }
+  } else {
+    for (const item of statusItems) {
+      const label = item.querySelector('.status-label');
+      if (label && label.textContent.includes(statLabels[statName])) {
+        targetStatusItem = item;
+        break;
+      }
     }
   }
 
   if (!targetStatusItem) return;
 
-  // 根据正负决定颜色
-  const color = amount >= 0 ? '#4CAF50' : '#F44336'; // 正数绿色，负数红色
-  const symbol = amount >= 0 ? '+' : ''; // 正数显示+号，负数自带-号
-
-  // 创建飘升数字元素
   const floatText = document.createElement('div');
   floatText.className = 'floating-change';
   floatText.textContent = `${symbol}${amount}`;
-
-  // 设置样式
   floatText.style.position = 'absolute';
-  floatText.style.left = '110px';
-  floatText.style.top = '0px';
   floatText.style.color = color;
   floatText.style.fontSize = '18px';
   floatText.style.fontWeight = 'bold';
   floatText.style.textShadow = '0 0 3px rgba(0,0,0,0.5)';
   floatText.style.animation = 'floatUp 3s ease-out forwards';
 
-  // 确保父容器有相对定位
-  targetStatusItem.style.position = 'relative';
-  targetStatusItem.appendChild(floatText);
+  if (statName === 'exp') {
+    floatText.style.top = '-24px';
+    floatText.style.left = '50%';
+    floatText.style.transform = 'translateX(-50%)';
+  } else {
+    floatText.style.top = '0px';
+    floatText.style.left = '110px';
+  }
 
-  // 动画结束自动移除
-  floatText.addEventListener('animationend', () => {
-    floatText.remove();
-  });
+  targetStatusItem.appendChild(floatText);
+  floatText.addEventListener('animationend', () => floatText.remove());
 
   // 触发粒子效果（数量根据变化幅度调整）
   const particleCount = Math.min(Math.abs(Math.round(amount / 5)), 15);
   showStatParticles(targetStatusItem, color, particleCount);
+}
+//升级特效
+function showLevelUpEffect() {
+  const effect = document.createElement('div');
+  effect.className = 'level-up-effect';
+  effect.textContent = '恭喜升级 ↑';
+
+  document.body.appendChild(effect);
+
+  effect.addEventListener('animationend', () => {
+    effect.remove();
+  });
 }
 
 // 粒子动画函数
